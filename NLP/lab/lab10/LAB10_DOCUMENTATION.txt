@@ -1,0 +1,484 @@
+================================================================================
+                    PRAGMATIC TRANSLATION SYSTEM - LAB 10
+                          COMPLETE DOCUMENTATION
+================================================================================
+
+Student: Sumith (2447252)
+Date: December 8, 2025
+Language Used: Hindi to English Translation
+
+
+================================================================================
+                              WHAT IS THIS PROJECT?
+================================================================================
+
+This project builds a smart translation system that doesn't just translate 
+words, but understands the MEANING and CONTEXT behind sentences.
+
+Regular translators fail because they translate word-by-word without 
+understanding:
+- Idioms (phrases with hidden meanings)
+- Politeness (respectful tone)
+- Sarcasm (saying opposite of what you mean)
+- Ambiguous words (words with multiple meanings)
+
+
+================================================================================
+                                TASK 1: DATASET
+================================================================================
+
+WHAT WE DID:
+Created a CSV file with 10 Hindi sentences including:
+- 3 Idioms
+- 3 Polite requests
+- 2 Sarcasm sentences
+- 2 Ambiguous word sentences
+
+FILE: pragmatic_translation_dataset.csv
+
+STRUCTURE:
+Each sentence has:
+1. Original Hindi sentence
+2. Literal (word-by-word) translation
+3. Contextual (correct meaning) translation
+4. Explanation of why literal fails
+5. Category label
+
+SIMPLE INTERPRETATION:
+Think of it like this - if someone says "break a leg" before a performance,
+literal translation would be confusing and scary! The actual meaning is 
+"good luck." Our dataset captures similar issues in Hindi.
+
+EXAMPLES:
+
+1. IDIOM:
+   Hindi: "हाथ कंगन को आरसी क्या"
+   Literal: "Hand to bangle what mirror"
+   Contextual: "It's obvious, no need for proof"
+   
+   Why literal fails: Talks about bangles and mirrors but actually means
+   something is self-evident.
+
+2. POLITE REQUEST:
+   Hindi: "क्या आप कृपया मुझे पानी दे सकते हैं?"
+   Literal: "What you kindly me water give can?"
+   Contextual: "Could you please give me some water?"
+   
+   Why literal fails: Loses the respectful tone and sounds awkward.
+
+3. SARCASM:
+   Hindi: "वाह, क्या शानदार काम किया है तुमने!"
+   Literal: "Wow, what wonderful work done is by you!"
+   Contextual: "Great job messing this up! (said sarcastically)"
+   
+   Why literal fails: Sounds like praise but actually means the opposite.
+
+4. AMBIGUOUS WORD:
+   Hindi: "मैं बैंक जा रहा हूँ"
+   Literal: "I bank go ing am"
+   Contextual: "I'm going to the bank (river bank or financial bank?)"
+   
+   Why literal fails: "bank" has two meanings, can't tell which without context.
+
+
+================================================================================
+                    TASK 2: FEATURE IDENTIFICATION
+================================================================================
+
+PART A: READING AND EXTRACTING DATA
+------------------------------------
+
+FUNCTION: extract_sentences_by_category()
+
+WHAT IT DOES:
+Reads the CSV file and separates sentences into 4 groups:
+- Idiom sentences
+- Polite sentences  
+- Sarcasm sentences
+- Ambiguous word sentences
+
+SIMPLE INTERPRETATION:
+Like sorting mail into different boxes - each type of sentence goes into
+its own category for processing.
+
+CODE LOGIC:
+1. Load CSV file using pandas
+2. Filter rows by category column
+3. Return dictionary with 4 categories
+
+
+PART B: RULE-BASED DETECTORS
+-----------------------------
+
+We created 4 detector functions that identify sentence types using patterns.
+
+1. IDIOM DETECTOR
+   Function: detect_idiom()
+   
+   HOW IT WORKS:
+   - Has a list of known idiom patterns
+   - Checks if sentence contains any idiom
+   - Returns True if found
+   
+   PATTERNS LIST:
+   - 'हाथ कंगन' (haath kangan)
+   - 'चिड़िया चुग' (chidiya chug)  
+   - 'हाथ धो' (haath dho)
+   
+   SIMPLE INTERPRETATION:
+   Like having a dictionary of idioms - if the sentence matches any idiom
+   in our dictionary, we know it's an idiom.
+
+2. POLITENESS DETECTOR
+   Function: detect_politeness()
+   
+   HOW IT WORKS:
+   - Looks for polite words/phrases
+   - Returns True if found
+   
+   POLITENESS MARKERS:
+   - 'कृपया' (please)
+   - 'क्या आप' (could you)
+   - 'अनुरोध' (request)
+   - 'खेद' (sorry)
+   
+   SIMPLE INTERPRETATION:
+   Checks for "magic words" that indicate respect and politeness, like
+   "please" and "could you" in English.
+
+3. SARCASM DETECTOR
+   Function: detect_sarcasm()
+   
+   HOW IT WORKS:
+   - Identifies positive words often used sarcastically
+   - Returns True if found
+   
+   SARCASM INDICATORS:
+   - 'वाह' (wow)
+   - 'शानदार' (wonderful)
+   - 'बिल्कुल सही' (absolutely right)
+   
+   SIMPLE INTERPRETATION:
+   Finds overly positive words that might mean the opposite. Like saying
+   "Great!" when something goes wrong.
+
+4. AMBIGUOUS WORD DETECTOR
+   Function: detect_ambiguous_word()
+   
+   HOW IT WORKS:
+   - Checks for words with multiple meanings
+   - Returns True if found
+   
+   AMBIGUOUS WORDS:
+   - 'बैंक' (bank - river or financial)
+   - 'लाइट' (light - lamp or brightness)
+   - 'कल' (kal - yesterday or tomorrow)
+   
+   SIMPLE INTERPRETATION:
+   Spots words that could mean different things depending on context.
+   Like "bat" in English (animal or sports equipment).
+
+
+================================================================================
+                        TASK 3: TRANSLATION LOGIC
+================================================================================
+
+PART A: CLASSIFIER
+-------------------
+
+FUNCTION: classify_sentence()
+
+WHAT IT DOES:
+Determines what type of sentence it is by checking all detectors.
+
+PRIORITY ORDER:
+1. Check for idiom first
+2. Then check for politeness
+3. Then check for sarcasm
+4. Then check for ambiguous words
+5. Default to literal
+
+SIMPLE INTERPRETATION:
+Like a sorting hat that decides which translation method to use.
+It runs all tests and picks the first match.
+
+WHY THIS ORDER?
+Idioms are most specific, so check first. Literal is the fallback when
+nothing special is detected.
+
+
+PART B: TRANSLATION FUNCTIONS
+------------------------------
+
+We created 5 different translation functions, each handling one case:
+
+1. translate_literal()
+   
+   WHAT IT DOES:
+   Returns word-by-word translation
+   
+   WHEN TO USE:
+   For simple, straightforward sentences
+   
+   SIMPLE INTERPRETATION:
+   Basic translator - just converts each word directly.
+
+2. translate_idiom()
+   
+   WHAT IT DOES:
+   Replaces idiom with its actual meaning
+   
+   HOW IT WORKS:
+   - Looks up idiom in meaning dictionary
+   - Returns the meaning instead of literal words
+   
+   EXAMPLE:
+   Input: "हाथ धो लिए"
+   Literal: "washed hands"
+   Idiom Translation: "gave up"
+   
+   SIMPLE INTERPRETATION:
+   Uses a cheat sheet to replace idioms with their real meanings.
+
+3. translate_polite()
+   
+   WHAT IT DOES:
+   Makes translation sound respectful and proper
+   
+   HOW IT WORKS:
+   - Adds polite words like "kindly", "would you"
+   - Restructures sentence to sound respectful
+   
+   EXAMPLE:
+   Input: "कृपया पानी दो"
+   Basic: "Please water give"
+   Polite: "Would you kindly give me some water?"
+   
+   SIMPLE INTERPRETATION:
+   Adds proper etiquette words to make it sound polite in English.
+
+4. translate_sarcasm()
+   
+   WHAT IT DOES:
+   Adds note that statement is sarcastic
+   
+   HOW IT WORKS:
+   - Keeps the literal translation
+   - Adds "(said sarcastically)" at end
+   
+   EXAMPLE:
+   Input: "वाह शानदार"
+   Basic: "Wow wonderful"
+   Sarcasm: "Wow wonderful (said sarcastically)"
+   
+   SIMPLE INTERPRETATION:
+   Makes it clear that positive words mean the opposite.
+
+5. translate_ambiguous_word()
+   
+   WHAT IT DOES:
+   Shows multiple possible meanings
+   
+   HOW IT WORKS:
+   - Identifies the ambiguous word
+   - Adds note showing alternatives
+   
+   EXAMPLE:
+   Input: "मैं बैंक जा रहा हूँ"
+   Basic: "I'm going to bank"
+   Ambiguous: "I'm going to bank (river bank or financial bank?)"
+   
+   SIMPLE INTERPRETATION:
+   Alerts reader that the word could mean different things.
+
+
+PART C: COMPLETE SYSTEM
+------------------------
+
+FUNCTION: pragmatic_translate()
+
+WHAT IT DOES:
+Main function that puts everything together:
+1. Classifies the sentence
+2. Applies appropriate translation
+3. Returns results with category info
+
+WORKFLOW:
+Input: Hindi sentence + literal translation
+→ Classify (which type?)
+→ Translate (using right method)
+→ Output: improved translation + category
+
+SIMPLE INTERPRETATION:
+The brain of the system. Takes a sentence, figures out what type it is,
+and applies the right translation strategy.
+
+
+================================================================================
+                    TASK 4: EVALUATION & ANALYSIS
+================================================================================
+
+PART A: COMPARISON TABLE
+-------------------------
+
+WHAT WE DID:
+Created a table showing all translations side-by-side for comparison.
+
+COLUMNS:
+1. Original Sentence (Hindi)
+2. Literal Translation
+3. Pragmatic Translation (our improved version)
+4. Category Detected
+
+OUTPUT:
+Saved as CSV file for easy viewing
+
+SIMPLE INTERPRETATION:
+Like a report card showing before and after - you can see exactly how
+our system improves translations compared to literal approach.
+
+
+PART B: ACCURACY CALCULATION
+-----------------------------
+
+FORMULA:
+Accuracy = (Correct Classifications / Total Sentences) × 100
+
+HOW WE MEASURE:
+- Total sentences: 10
+- For each sentence, check if detected category matches actual category
+- Count correct detections
+- Calculate percentage
+
+EXAMPLE:
+If 9 out of 10 sentences were correctly classified:
+Accuracy = (9/10) × 100 = 90%
+
+SIMPLE INTERPRETATION:
+A score showing how well our detectors work. 100% means perfect,
+below 60% means needs improvement.
+
+WHAT GOOD ACCURACY MEANS:
+- System correctly identifies sentence types
+- Appropriate translation method is applied
+- Final translation is better than literal
+
+
+================================================================================
+                            KEY INSIGHTS
+================================================================================
+
+1. WHY LITERAL TRANSLATION FAILS:
+   --------------------------------
+   
+   a) IGNORES CULTURE:
+      Idioms are culture-specific. "रोना धोना" literally means "cry wash"
+      but actually means "emotional outburst." No cultural context = confusion.
+   
+   b) LOSES TONE:
+      Can't detect if sentence is polite, rude, or sarcastic just from words.
+      "Great job!" could be praise or criticism depending on tone.
+   
+   c) MISSES CONTEXT:
+      Same word can mean different things. "bank" could be financial 
+      institution or river edge. Word-by-word translation can't choose.
+   
+   d) WORD-BY-WORD APPROACH:
+      Language isn't just words - it's meaning + context + culture.
+      You need to understand the whole picture.
+
+2. WHAT MAKES PRAGMATIC TRANSLATION BETTER:
+   -----------------------------------------
+   
+   a) CONTEXT AWARENESS:
+      Understands situation and intent, not just words
+   
+   b) CATEGORY DETECTION:
+      Identifies special cases that need special handling
+   
+   c) SPECIALIZED HANDLING:
+      Different strategies for different sentence types
+   
+   d) MEANING PRESERVATION:
+      Keeps the actual intended meaning, not just words
+
+3. REAL-WORLD APPLICATIONS:
+   ------------------------
+   
+   a) CHATBOTS:
+      Need to understand sarcasm and politeness in customer queries
+   
+   b) TRANSLATION APPS:
+      Should translate meaning, not just words
+   
+   c) SENTIMENT ANALYSIS:
+      Must detect sarcasm to get sentiment right
+   
+   d) CROSS-CULTURAL COMMUNICATION:
+      Helps avoid misunderstandings from literal translations
+
+
+================================================================================
+                        LIMITATIONS & FUTURE WORK
+================================================================================
+
+CURRENT LIMITATIONS:
+1. Rule-based approach - needs manual pattern definition
+2. Limited idiom dictionary - won't catch unknown idioms
+3. Simple sarcasm detection - can miss subtle sarcasm
+4. No deep context understanding - just pattern matching
+
+IMPROVEMENTS:
+1. Use machine learning to detect patterns automatically
+2. Add larger idiom and phrase databases
+3. Implement sentiment analysis for better sarcasm detection
+4. Use context from previous sentences for better disambiguation
+5. Add more languages beyond Hindi
+
+
+================================================================================
+                            HOW TO RUN
+================================================================================
+
+REQUIREMENTS:
+- Python 3.x
+- pandas library
+- The CSV dataset file
+
+STEPS:
+1. Ensure pragmatic_translation_dataset.csv is in same folder
+2. Open lab10.ipynb in Jupyter Notebook
+3. Run all cells in order
+4. View results and comparison table
+
+EXPECTED OUTPUT:
+- Dataset overview
+- Category extraction results
+- Detector test results
+- Complete translations for all 10 sentences
+- Comparison table
+- Accuracy score
+
+
+================================================================================
+                              CONCLUSION
+================================================================================
+
+This project demonstrates that good translation requires more than word
+conversion - it needs understanding of:
+
+- Cultural context (idioms)
+- Social context (politeness)
+- Emotional context (sarcasm)
+- Situational context (ambiguous words)
+
+Our system achieves this through:
+1. Pattern-based detection
+2. Category-specific translation
+3. Context-aware processing
+
+The result is translations that preserve meaning and intent, not just words.
+
+================================================================================
+                              END OF DOCUMENT
+================================================================================
